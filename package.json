@@ -1,0 +1,32 @@
+{
+  "name": "password-encrypted-overlay",
+  "version": "0.0.0",
+  "description": "Password encrypted overlay to Random Access modules",
+  "main": "index.js",
+  "dependencies": {
+    "nanoassert": "^1.1.0",
+    "sodium-native": "^2.2.3",
+    "thunky": "^1.0.3"
+  },
+  "devDependencies": {
+    "random-access-file": "^2.0.1",
+    "random-access-memory": "^3.0.0",
+    "tape": "^4.8.0"
+  },
+  "scripts": {
+    "test": "tape test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emilbayes/password-encrypted-overlay.git"
+  },
+  "keywords": [
+
+  ],
+  "author": "Emil Bay <github@tixz.dk>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/emilbayes/password-encrypted-overlay/issues"
+  },
+  "homepage": "https://github.com/emilbayes/password-encrypted-overlay#readme"
+}
