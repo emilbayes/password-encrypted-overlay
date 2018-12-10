@@ -342,25 +342,27 @@ class PasswordEncryptedOverlay {
   }
 }
 
-PasswordEncryptedOverlay.MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE
-PasswordEncryptedOverlay.OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE
-PasswordEncryptedOverlay.INTERACTIVE = {
-  memlimit: PasswordEncryptedOverlay.MEMLIMIT_INTERACTIVE,
-  opslimit: PasswordEncryptedOverlay.OPSLIMIT_INTERACTIVE
+module.exports = function (...args) {
+  return new PasswordEncryptedOverlay(...args)
 }
 
-PasswordEncryptedOverlay.MEMLIMIT_MODERATE = sodium.crypto_pwhash_MEMLIMIT_MODERATE
-PasswordEncryptedOverlay.OPSLIMIT_MODERATE = sodium.crypto_pwhash_OPSLIMIT_MODERATE
-PasswordEncryptedOverlay.MODERATE = {
-  memlimit: PasswordEncryptedOverlay.MEMLIMIT_MODERATE,
-  opslimit: PasswordEncryptedOverlay.OPSLIMIT_MODERATE
+module.exports.MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE
+module.exports.OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE
+module.exports.INTERACTIVE = {
+  memlimit: module.exports.MEMLIMIT_INTERACTIVE,
+  opslimit: module.exports.OPSLIMIT_INTERACTIVE
 }
 
-PasswordEncryptedOverlay.MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_MEMLIMIT_SENSITIVE
-PasswordEncryptedOverlay.OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_OPSLIMIT_SENSITIVE
-PasswordEncryptedOverlay.SENSITIVE = {
-  memlimit: PasswordEncryptedOverlay.MEMLIMIT_SENSITIVE,
-  opslimit: PasswordEncryptedOverlay.OPSLIMIT_SENSITIVE
+module.exports.MEMLIMIT_MODERATE = sodium.crypto_pwhash_MEMLIMIT_MODERATE
+module.exports.OPSLIMIT_MODERATE = sodium.crypto_pwhash_OPSLIMIT_MODERATE
+module.exports.MODERATE = {
+  memlimit: module.exports.MEMLIMIT_MODERATE,
+  opslimit: module.exports.OPSLIMIT_MODERATE
 }
 
-module.exports = PasswordEncryptedOverlay
+module.exports.MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_MEMLIMIT_SENSITIVE
+module.exports.OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_OPSLIMIT_SENSITIVE
+module.exports.SENSITIVE = {
+  memlimit: module.exports.MEMLIMIT_SENSITIVE,
+  opslimit: module.exports.OPSLIMIT_SENSITIVE
+}
