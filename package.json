@@ -22,7 +22,10 @@
     "url": "git+https://github.com/emilbayes/password-encrypted-overlay.git"
   },
   "keywords": [
-
+    "passphrase",
+    "encrypted",
+    "password",
+    "file"
   ],
   "author": "Emil Bay <github@tixz.dk>",
   "license": "ISC",
