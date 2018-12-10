@@ -193,6 +193,9 @@ const DATA_MAC_BYTES = sodium.crypto_aead_xchacha20poly1305_ietf_ABYTES
 
 class PasswordEncryptedOverlay {
   constructor (raf, passphrase) {
+    assert(raf, 'raf must be given')
+    assert(passphrase.byteLength, 'passphrase must be Buffer-like')
+
     this.raf = raf
     this[PASSPHRASE_CAP] = passphrase
 
