@@ -210,8 +210,8 @@ class PasswordEncryptedOverlay {
         if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
         if (err) return this.destroy(err, cb)
 
-        this.peb = new PasswordEncryptedBuffer(headerBuf)
         try {
+          this.peb = new PasswordEncryptedBuffer(headerBuf)
           this.peb.validate()
         } catch (ex) {
           return this.destroy(ex, cb)
