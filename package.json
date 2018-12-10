@@ -4,6 +4,7 @@
   "description": "Password encrypted overlay to Random Access modules",
   "main": "index.js",
   "dependencies": {
+    "mutexify": "^1.2.0",
     "nanoassert": "^1.1.0",
     "sodium-native": "^2.2.3",
     "thunky": "^1.0.3"

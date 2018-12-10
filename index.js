@@ -1,6 +1,7 @@
 const sodium = require('sodium-native')
 const assert = require('nanoassert')
 const thunky = require('thunky')
+const mutexify = require('mutexify')
 
 function isUInt32 (x) {
   return x >= 0 && x <= 0xffffffff
@@ -200,6 +201,7 @@ class PasswordEncryptedOverlay {
     this[PASSPHRASE_CAP] = passphrase
 
     this.peb = null
+    this.mutex = mutexify()
 
     this.destroyed = false
 
@@ -239,12 +241,17 @@ class PasswordEncryptedOverlay {
 
     var initPeb = new PasswordEncryptedBuffer(Buffer.alloc(PasswordEncryptedBuffer.BYTES))
     initPeb.init(settings.opslimit, settings.memlimit)
-    this.raf.write(0, initPeb.buffer, (err) => {
-      initPeb.destroy()
-      if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
-      if (err) return this.destroy(err, cb)
+    this.mutex((release) => {
+      const done = release.bind(null, cb)
+      if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
 
-      this.open(cb)
+      this.raf.write(0, initPeb.buffer, (err) => {
+        initPeb.destroy()
+        if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
+        if (err) return this.destroy(err, done)
+
+        this.open(done)
+      })
     })
   }
 
@@ -255,22 +262,29 @@ class PasswordEncryptedOverlay {
       if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
       if (err) return this.destroy(err, cb)
 
-      this.raf.stat((err, stat) => {
-        if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
-        if (err) return this.destroy(err, cb)
-        var dataByteLength = stat.size - PasswordEncryptedBuffer.BYTES
+      this.mutex((release) => {
+        const done = release.bind(null, cb)
+        if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
 
-        if (dataByteLength < DATA_MAC_BYTES) return this.destroy(new Error('Invalid data segment'), cb)
+        this.raf.stat((err, stat) => {
+          if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
+          if (err) return this.destroy(err, done)
+          var dataByteLength = stat.size - PasswordEncryptedBuffer.BYTES
 
-        this.raf.read(PasswordEncryptedBuffer.BYTES, dataByteLength, (err, dataBuf) => {
-          if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
-          if (err) return this.destroy(err, cb)
+          if (dataByteLength < DATA_MAC_BYTES) return this.destroy(new Error('Invalid data segment'), done)
 
-          try {
-            return cb(null, this.peb.decrypt(dataBuf))
-          } catch (ex) {
-            return this.destroy(ex, cb)
-          }
+          this.raf.read(PasswordEncryptedBuffer.BYTES, dataByteLength, (err, dataBuf) => {
+            if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
+            if (err) return this.destroy(err, done)
+
+            try {
+              var plaintext = this.peb.decrypt(dataBuf)
+            } catch (ex) {
+              return this.destroy(ex, done)
+            }
+
+            return done(null, plaintext)
+          })
         })
       })
     })
@@ -289,11 +303,23 @@ class PasswordEncryptedOverlay {
         return this.destroy(ex, cb)
       }
 
-      this.raf.write(0, Buffer.concat([this.peb.buffer, ciphertext]), (err) => {
-        if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
-        if (err) return this.destroy(err, cb)
+      const fileBuffer = Buffer.concat([this.peb.buffer, ciphertext])
 
-        return cb(null)
+      this.mutex((release) => {
+        const done = release.bind(null, cb)
+        if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
+
+        this.raf.write(0, fileBuffer, (err) => {
+          if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
+          if (err) return this.destroy(err, done)
+
+          this.raf.del(fileBuffer.byteLength, Infinity, (err) => {
+            if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
+            if (err) return this.destroy(err, done)
+
+            return done(null)
+          })
+        })
       })
     })
   }
