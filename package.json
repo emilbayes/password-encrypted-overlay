@@ -11,8 +11,8 @@
   },
   "devDependencies": {
     "random-access-file": "^2.0.1",
-    "random-access-memory": "^3.0.0",
-    "tape": "^4.8.0"
+    "random-access-memory": "^3.1.1",
+    "tape": "^4.9.1"
   },
   "scripts": {
     "test": "tape test.js"
