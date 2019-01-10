@@ -102,6 +102,7 @@ class DataHeader {
 }
 DataHeader.BYTES = 4 + sodium.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
 
+// Would be cool to add a libhydrogen style probe ie. blake2b(key=derivedKey, data=nonce)
 class PasswordEncryptedBuffer {
   constructor (buf) {
     assert(buf.byteLength >= PasswordEncryptedBuffer.BYTES, 'PasswordEncryptedBuffer buffer too small')
@@ -205,7 +206,7 @@ class PasswordEncryptedOverlay {
 
     this.destroyed = false
 
-    this.open = thunky((cb) => {
+    this._open = thunky((cb) => {
       if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
 
       this.raf.read(0, PasswordEncryptedBuffer.BYTES, (err, headerBuf) => {
@@ -232,6 +233,29 @@ class PasswordEncryptedOverlay {
     })
   }
 
+  static create (raf, passphrase, settings, cb) {
+    var self = new PasswordEncryptedOverlay(raf, passphrase)
+
+    self.init(settings, (err) => {
+      if (err) return cb(err)
+
+      return cb(null, self)
+    })
+  }
+
+  static open (raf, passphrase, cb) {
+    raf.stat((err, stat) => {
+      if (err) return cb(err)
+
+      var self = new PasswordEncryptedOverlay(raf, passphrase)
+      self._open((err) => {
+        if (err) return cb(err)
+
+        return cb(null, self)
+      })
+    })
+  }
+
   init (settings, cb) {
     if (this.destroyed === true) return this.destroy(new Error('Destroyed'))
 
@@ -250,7 +274,7 @@ class PasswordEncryptedOverlay {
         if (this.destroyed === true) return this.destroy(new Error('Destroyed'), done)
         if (err) return this.destroy(err, done)
 
-        this.open(done)
+        this._open(done)
       })
     })
   }
@@ -258,7 +282,7 @@ class PasswordEncryptedOverlay {
   read (cb) {
     if (this.destroyed === true) return this.destroy(new Error('Destroyed'))
 
-    this.open((err) => {
+    this._open((err) => {
       if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
       if (err) return this.destroy(err, cb)
 
@@ -293,7 +317,7 @@ class PasswordEncryptedOverlay {
   write (dataBuf, cb) {
     if (this.destroyed === true) return this.destroy(new Error('Destroyed'))
 
-    this.open((err) => {
+    this._open((err) => {
       if (this.destroyed === true) return this.destroy(new Error('Destroyed'), cb)
       if (err) return this.destroy(err, cb)
 
@@ -342,9 +366,7 @@ class PasswordEncryptedOverlay {
   }
 }
 
-module.exports = function (...args) {
-  return new PasswordEncryptedOverlay(...args)
-}
+module.exports = PasswordEncryptedOverlay
 
 module.exports.MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE
 module.exports.OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE
