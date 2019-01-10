@@ -1,4 +1,4 @@
-var PasswordEncryptedOverlay = require('.')
+var PasswordEncryptedOverlay = require('..')
 var raf = require('random-access-file') // or random-access-memory or ...
 
 var passwordBuffer = Buffer.from('Hello world') // Ideally sodium.sodium_malloc instead
