@@ -233,6 +233,31 @@ class PasswordEncryptedOverlay {
     })
   }
 
+  static deriveKey (passphrase, settings, cb) {
+    assert(settings)
+    assert(settings.opslimit)
+    assert(settings.memlimit)
+  
+    const key = sodium.sodium_malloc(sodium.crypto_aead_xchacha20poly1305_ietf_KEYBYTES)
+    const nonce = settings.nonce || sodium.sodium_malloc(sodium.crypto_pwhash_SALTBYTES)
+
+    if (!settings.nonce) {
+      sodium.randombytes_buf(nonce)
+    }
+
+    sodium.crypto_pwhash_async(
+      key,
+      passphrase,
+      nonce,
+      settings.opslimit,
+      settings.memlimit,
+      sodium.crypto_pwhash_ALG_ARGON2ID13,
+      (err) => {
+        return cb(err, key, nonce)
+      }
+    )
+  }
+
   static create (raf, passphrase, settings, cb) {
     var self = new PasswordEncryptedOverlay(raf, passphrase)
 
