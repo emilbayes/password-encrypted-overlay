@@ -137,17 +137,15 @@ class PasswordEncryptedBuffer {
   }
 
   deriveKey (passphrase, cb) {
-    sodium.crypto_pwhash_async(
-      this.key,
-      passphrase,
-      this._keyHeader.nonce,
-      this._keyHeader.opslimit,
-      this._keyHeader.memlimit,
-      this._keyHeader.alg,
-      (err) => {
-        return cb(err, this.key)
-      }
-    )
+    PasswordEncryptedOverlay.deriveKey(passphrase, {
+      key: this.key,
+      nonce: this._keyHeader.nonce,
+      opslimit: this._keyHeader.opslimit,
+      memlimit: this._keyHeader.memlimit,
+      alg: this._keyHeader.alg
+    }, (err) => {
+      return cb(err, this.key)
+    })
   }
 
   decrypt (ciphertext) {
@@ -237,8 +235,8 @@ class PasswordEncryptedOverlay {
     assert(settings)
     assert(settings.opslimit)
     assert(settings.memlimit)
-  
-    const key = sodium.sodium_malloc(sodium.crypto_aead_xchacha20poly1305_ietf_KEYBYTES)
+
+    const key = settings.key || sodium.sodium_malloc(sodium.crypto_aead_xchacha20poly1305_ietf_KEYBYTES)
     const nonce = settings.nonce || sodium.sodium_malloc(sodium.crypto_pwhash_SALTBYTES)
 
     if (!settings.nonce) {
@@ -251,7 +249,7 @@ class PasswordEncryptedOverlay {
       nonce,
       settings.opslimit,
       settings.memlimit,
-      sodium.crypto_pwhash_ALG_ARGON2ID13,
+      settings.alg || sodium.crypto_pwhash_ALG_ARGON2ID13,
       (err) => {
         return cb(err, key, nonce)
       }
