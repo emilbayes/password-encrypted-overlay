@@ -82,6 +82,10 @@ destroyed before.
 Destroy the internal state, including zero'ing all internal data.
 Makes all other methods unusable hereafter
 
+### `PasswordEncryptedOverlay.deriveKey(password, {memlimit, opslimit, nonce?}, cb(err, key, nonce))`
+Derive a key manually with an optional nonce. Useful if you want to compare passwords without
+storing the password itself.
+
 ### Constants
 
 * `PasswordEncryptedOverlay.INTERACTIVE`
