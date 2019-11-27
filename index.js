@@ -256,6 +256,12 @@ class PasswordEncryptedOverlay {
     )
   }
 
+  static compareKeys (k1, k2) {
+    assert(k1.byteLength === k2.byteLength, 'k1 and k2 must have equal byteLength')
+
+    return sodium.sodium_memcmp(k1, k2)
+  }
+
   static create (raf, passphrase, settings, cb) {
     var self = new PasswordEncryptedOverlay(raf, passphrase)
 
