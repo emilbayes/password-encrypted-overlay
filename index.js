@@ -232,9 +232,9 @@ class PasswordEncryptedOverlay {
   }
 
   static deriveKey (passphrase, settings, cb) {
-    assert(settings)
-    assert(settings.opslimit)
-    assert(settings.memlimit)
+    assert(settings, 'settings must be given')
+    assert(settings.opslimit, 'settings.opslimit must be set')
+    assert(settings.memlimit, 'settings.memlimit must be set')
 
     const key = settings.key || sodium.sodium_malloc(sodium.crypto_aead_xchacha20poly1305_ietf_KEYBYTES)
     const nonce = settings.nonce || sodium.sodium_malloc(sodium.crypto_pwhash_SALTBYTES)
@@ -282,9 +282,9 @@ class PasswordEncryptedOverlay {
   init (settings, cb) {
     if (this.destroyed === true) return this.destroy(new Error('Destroyed'))
 
-    assert(settings)
-    assert(settings.opslimit)
-    assert(settings.memlimit)
+    assert(settings, 'settings must be given')
+    assert(settings.opslimit, 'settings.opslimit must be set')
+    assert(settings.memlimit, 'settings.memlimit must be set')
 
     var initPeb = new PasswordEncryptedBuffer(Buffer.alloc(PasswordEncryptedBuffer.BYTES))
     initPeb.init(settings.opslimit, settings.memlimit)
