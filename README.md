@@ -86,6 +86,9 @@ Makes all other methods unusable hereafter
 Derive a key manually with an optional nonce. Useful if you want to compare passwords without
 storing the password itself.
 
+### `const equal = PasswordEncryptedOverlay.compareKeys(k1, k2)`
+Compare two keys safely, in constant-time.
+
 ### Constants
 
 * `PasswordEncryptedOverlay.INTERACTIVE`
