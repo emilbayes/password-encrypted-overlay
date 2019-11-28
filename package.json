@@ -1,6 +1,6 @@
 {
   "name": "password-encrypted-overlay",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Password encrypted overlay to Random Access modules",
   "main": "index.js",
   "dependencies": {
